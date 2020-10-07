@@ -1,14 +1,20 @@
 from JackTokenizer import JackTokenizer
 from xml.sax.saxutils import escape
+import sys
 
-jtk = JackTokenizer('Main.jack')
+try:
 
-print("<tokens>")
+    jtk = JackTokenizer(sys.argv[1])
 
-while(jtk.hasMoreTokens()):
-    tokenType = jtk.tokenType()
-    print("<" + tokenType + ">" + escape(jtk.getToken()) + "</" + tokenType + ">")
-    jtk.advance()
+    print("<tokens>")
 
-print("</tokens>")
+    while(jtk.hasMoreTokens()):
+        tokenType = jtk.tokenType()
+        print("<" + tokenType + ">" + escape(jtk.getToken()) + "</" + tokenType + ">")
+        jtk.advance()
+
+    print("</tokens>")
+    
+except FileNotFoundError:
+    print("File not found.")
 
