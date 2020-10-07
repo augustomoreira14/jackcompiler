@@ -6,6 +6,9 @@ class JackTokenizer:
         text = f.read()
         f.close()
 
+        # remove comments
+        text = re.sub(r'\/\/.*', '', text)
+
         self.keywords = ['class','constructor','function',
         'method','field','static','var','int',
         'char', 'boolean','void', 'true','false',
