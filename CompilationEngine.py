@@ -135,8 +135,11 @@ class CompilationEngine:
 
         self.expect("do")
         self.expectType("identifier")
-        self.expect(".")
-        self.expectType("identifier")
+
+        if self.tokenizer.getToken() == ".":
+            self.expect(".")
+            self.expectType("identifier")
+
         self.expect("(")
         self.compileExpressionList()
         self.expect(")")
