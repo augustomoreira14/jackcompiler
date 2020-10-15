@@ -6,9 +6,10 @@ from os import path, listdir
 try:
     if path.isdir(sys.argv[1]):
         files = listdir(sys.argv[1])
+        realPath = path.realpath(sys.argv[1])
         for file in files:
             if file.endswith('.jack'):
-                compilation = CompilationEngine(file)
+                compilation = CompilationEngine(path.join(realPath, file))
                 compilation.compile()
 
     elif path.isfile(sys.argv[1]):

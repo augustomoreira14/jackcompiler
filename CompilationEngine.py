@@ -54,8 +54,12 @@ class CompilationEngine:
     def compileSubroutine(self):
         self.writeToXml("<subroutineDec>")
         
-        self.expect(['construct', 'function', 'method'])
-        self.expect(self.types + ['void'])
+        self.expect(['constructor', 'function', 'method'])
+
+        if self.tokenizer.getToken() in self.types + ['void'] or self.tokenizer.tokenType() == 'identifier':
+            self.printToken()
+            self.tokenizer.advance()
+
         self.expectType('identifier')
         self.expect("(")
         self.compileParameterList()
