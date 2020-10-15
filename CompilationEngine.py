@@ -8,6 +8,7 @@ class CompilationEngine:
         self.tokenizer = JackTokenizer(filename)
         self.types = ['int', 'char', 'boolean']
         self.operators = ['+', '-', '*', '/', '&', '|', '<', '>', '=']
+        self.keywordsConstant = ['true', 'false', 'null', 'this']
         self.fileName = splitext(filename)[0]
     
     def compile(self):
@@ -230,7 +231,12 @@ class CompilationEngine:
 
     def compileTerm(self):
         self.writeToXml("<term>")
-        self.expectType(['identifier', 'intConst', 'stringConst'])
+        
+        if self.tokenizer.tokenType() == 'keyword':
+            self.expect(self.keywordsConstant)
+        else:
+            self.expectType(['identifier', 'intConst', 'stringConst'])
+
         self.writeToXml("</term>")
     
     def expect(self, expected):
