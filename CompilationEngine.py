@@ -146,6 +146,12 @@ class CompilationEngine:
 
     def compileExpressionList(self):
         self.writeToXml('<expressionList>')
+        if self.tokenizer.getToken() != ")":
+            self.compileExpression()
+            while self.tokenizer.getToken() == ",":
+                self.expect(",")
+                self.compileExpression()
+
         self.writeToXml('</expressionList>')
         
     def compileIf(self):
