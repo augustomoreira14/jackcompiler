@@ -235,11 +235,30 @@ class CompilationEngine:
 
     def compileTerm(self):
         self.writeToXml("<term>")
-        
+
         if self.tokenizer.tokenType() == 'keyword':
             self.expect(self.keywordsConstant)
+        elif self.tokenizer.tokenType() == 'identifier':
+            self.expectType('identifier')
+
+            if self.tokenizer.getToken() == '[':
+                self.expect('[')
+                self.compileExpression()
+                self.expect(']')
+                
+            elif self.tokenizer.getToken() == '.':
+                self.expect('.')
+                self.expectType('identifier')
+                self.expect('(')
+                self.compileExpressionList()
+                self.expect(')')
+
+            elif self.tokenizer.getToken() == '(':
+                self.expect('(')
+                self.compileExpressionList()
+                self.expect(')')
         else:
-            self.expectType(['identifier', 'intConst', 'stringConst'])
+            self.expectType(['intConst', 'stringConst'])
 
         self.writeToXml("</term>")
     
