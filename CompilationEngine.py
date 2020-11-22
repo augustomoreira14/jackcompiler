@@ -1,4 +1,5 @@
 from JackTokenizer import JackTokenizer
+from SymbolTable import SymbolTable
 from xml.sax.saxutils import escape
 from os.path import splitext
 
@@ -10,6 +11,7 @@ class CompilationEngine:
         self.operators = ['+', '-', '*', '/', '&', '|', '<', '>', '=']
         self.keywordsConstant = ['true', 'false', 'null', 'this']
         self.fileName = splitext(filename)[0]
+        self.symbolTable = SymbolTable()
     
     def compile(self):
         self.file = open(self.fileName + ".xml", "w")
@@ -34,18 +36,26 @@ class CompilationEngine:
 
     def compileClassVarDec(self):
         self.writeToXml('<classVarDec>')
-
+        
+        kind = self.tokenizer.getToken()
         self.expect(['field', 'static'])
 
         if self.tokenizer.getToken() in self.types or self.tokenizer.tokenType() == 'identifier':
+            type = self.tokenizer.getToken()
             self.printToken()
             self.tokenizer.advance()
 
+        name = self.tokenizer.getToken()
         self.expectType('identifier')
+
+        self.symbolTable.define(name, type, kind)
 
         while self.tokenizer.getToken() == ",":
             self.expect(",")
+            name = self.tokenizer.getToken()
             self.expectType('identifier')
+
+            self.symbolTable.define(name, type, kind)
 
         self.expect(';')
 
@@ -53,7 +63,8 @@ class CompilationEngine:
 
     def compileSubroutine(self):
         self.writeToXml("<subroutineDec>")
-        
+        self.symbolTable.startSubroutine()
+
         self.expect(['constructor', 'function', 'method'])
 
         if self.tokenizer.getToken() in self.types + ['void'] or self.tokenizer.tokenType() == 'identifier':
@@ -81,8 +92,14 @@ class CompilationEngine:
         self.writeToXml("<parameterList>")
 
         if self.tokenizer.getToken() in self.types or self.tokenizer.tokenType() == 'identifier':
-            self.printToken()
+            type = self.tokenizer.getToken()
+            
+            self.printToken() 
             self.tokenizer.advance()
+
+            name = self.tokenizer.getToken()
+            self.symbolTable.define(name, type, SymbolTable.ARG)
+
             self.expectType('identifier')
 
         while self.tokenizer.getToken() == ',':
@@ -90,8 +107,14 @@ class CompilationEngine:
             if self.tokenizer.getToken() not in self.types and self.tokenizer.tokenType() != 'identifier':
                 self.errorExpected(self.tokenizer.getToken(), '|'.join(self.types + ['identifier']))
 
+            type = self.tokenizer.getToken()
+
             self.printToken()
             self.tokenizer.advance()
+
+            name = self.tokenizer.getToken()
+            self.symbolTable.define(name, type, SymbolTable.ARG)
+
             self.expectType('identifier')
 
         self.writeToXml("</parameterList>")
