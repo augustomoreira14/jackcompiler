@@ -54,6 +54,13 @@ class SymbolTable:
 
     def indexOf(self, name):
         return self.find(name, 'index')
+
+    def hasOf(self, name):
+        try:
+            self.find(name, 'index')
+            return True
+        except:
+            return False
     
     def find(self, name, index):
         if name in self.subroutineLevel:
