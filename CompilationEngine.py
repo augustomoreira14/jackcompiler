@@ -453,18 +453,17 @@ class CompilationEngine:
                 if self.symbolTable.hasOf(identifier):
                     self.vm.writePush(self.resolveSegment(identifier), self.symbolTable.indexOf(identifier))
                     nameFunction = self.symbolTable.typeOf(identifier) + '.' + self.tokenizer.getToken()
+                    
+                    self.expectType("identifier")
+                    self.expect("(")
+                    nArgs = self.compileExpressionList()
+                    nArgs += 1
                 else:
                     nameFunction = identifier + '.' + self.tokenizer.getToken()
         
-                self.expectType("identifier")
-                self.expect("(")
-                nArgs = self.compileExpressionList()
-                nArgs += 1
-            else:
-                nameFunction = self.className + '.' + identifier
-                self.expect("(")
-                nArgs = self.compileExpressionList()
-                nArgs += 1
+                    self.expectType("identifier")
+                    self.expect("(")
+                    nArgs = self.compileExpressionList()
             
 
             self.expect(")")
