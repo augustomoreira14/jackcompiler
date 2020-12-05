@@ -74,6 +74,10 @@ class CompilationEngine:
         self.ifLabelNum = 0
 
         subroutineType = self.tokenizer.getToken()
+
+        if subroutineType == 'method':
+            self.symbolTable.define("this", self.className, SymbolTable.ARG)
+
         self.expect(['constructor', 'function', 'method'])
 
         if self.tokenizer.getToken() in self.types + ['void'] or self.tokenizer.tokenType() == 'identifier':
@@ -215,17 +219,17 @@ class CompilationEngine:
     def compileIf(self):
         self.writeToXml('<ifStatement>')
 
-        labelElse = "IF_ELSE{}".format(self.ifLabelNum) 
+        labelTrue = "IF_TRUE{}".format(self.ifLabelNum) 
+        labelFalse = "IF_FALSE{}".format(self.ifLabelNum) 
         labelEnd = "IF_END{}".format(self.ifLabelNum)
         self.ifLabelNum += 1
 
         self.expect("if")
         self.expect("(")
         self.compileExpression()
-        
-        self.vm.writeArithmetic(VMWriter.NOT)
-        self.vm.writeIf(labelElse)
-
+        self.vm.writeIf(labelTrue)
+        self.vm.writeGoto(labelFalse)
+        self.vm.writeLabel(labelTrue)   
         self.expect(")")
         self.expect("{")
 
@@ -234,7 +238,7 @@ class CompilationEngine:
 
         self.expect("}")
 
-        self.vm.writeLabel(labelElse)
+        self.vm.writeLabel(labelFalse)
 
         if self.tokenizer.getToken() == "else":
             self.expect('else')
@@ -410,6 +414,7 @@ class CompilationEngine:
 
         elif self.tokenizer.tokenType() == 'stringConst':
             string = self.tokenizer.getToken()
+            string = string[1:-1]
             self.expectType('stringConst')
 
             self.vm.writePush(VMWriter.CONST, len(string))
